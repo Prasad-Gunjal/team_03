@@ -11,16 +11,34 @@ import CommunitySection from '../components/LandingPage/CommunitySection'
 
 const Home = () => {
   return (
-    <div>
+    <div className="relative">
       <Navbar/>
-      <HeroSection/>
-      <FeaturesSection/>
-      <ImpactSection/>
-      <HowItWorks/>
-      <ImpactMetrics/>
-      <CommunitySection/>
-      <Footer/>
       
+      <section id="hero">
+        <HeroSection/>
+      </section>
+      
+      <section id="features">
+        <FeaturesSection/>
+      </section>
+      
+      <section id="impact">
+        <ImpactSection/>
+      </section>
+      
+      <section id="how-it-works">
+        <HowItWorks/>
+      </section>
+      
+      <section id="metrics">
+        <ImpactMetrics/>
+      </section>
+      
+      <section id="community">
+        <CommunitySection/>
+      </section>
+      
+      <Footer/>
     </div>
   )
 }

@@ -17,6 +17,7 @@ import Sidebar from "../components/Dashboard/DashSidebar";
 import Navbar from "../components/Dashboard/Navbar";
 import ReportCard from "../components/Dashboard/ReportCard";
 import StatCard from "../components/Dashboard/StatCard";
+import { scrollToElement } from "../utils/smoothScroll";
 
 export default function Dashboard() {
   const navigate = useNavigate();

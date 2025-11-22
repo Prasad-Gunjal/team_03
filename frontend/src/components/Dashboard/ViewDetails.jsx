@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   FiArrowLeft,
   FiCalendar,
@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../utils/imageUtils";
+import { scrollIntoView, scrollToElement } from "../../utils/smoothScroll";
 import UpdateReport from "./UpdateReport";
 
 export default function ViewDetails() {
@@ -35,6 +36,10 @@ export default function ViewDetails() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  // Refs for smooth scrolling
+  const commentsRef = useRef(null);
+  const newCommentRef = useRef(null);
 
   // Fetch complaint by ID if not present in state
   useEffect(() => {
@@ -141,6 +146,13 @@ export default function ViewDetails() {
       console.log("Comment added successfully:", res.data);
       setComments(prev => [...prev, res.data.data]);
       setNewComment("");
+      
+      // Smooth scroll to the new comment after a brief delay
+      setTimeout(() => {
+        if (commentsRef.current) {
+          scrollIntoView(commentsRef.current, 'end');
+        }
+      }, 100);
     } catch (error) {
       console.error("Error adding comment:", error);
       console.error("Error details:", error.response?.data || error.message);
@@ -375,7 +387,7 @@ export default function ViewDetails() {
             )}
 
             {/* Comments Section */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
+            <div id="comments-section" ref={commentsRef} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                   <FiMessageSquare className="text-purple-600" />
@@ -384,6 +396,12 @@ export default function ViewDetails() {
                     {comments.length}
                   </span>
                 </h3>
+                <button
+                  onClick={() => scrollToElement('comments-section', 80)}
+                  className="text-sm text-purple-600 hover:text-purple-800 transition-colors"
+                >
+                  Jump to Comments
+                </button>
               </div>
 
               {/* Add Comment Form */}

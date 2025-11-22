@@ -73,29 +73,42 @@ export default function AdminComplaints() {
       <AdminSidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <AdminNavbar />
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Complaints</h1>
-            <p className="text-sm text-gray-600">Manage all user complaints</p>
+        
+        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+          <div id="admin-header" className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">Complaints Management</h1>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Manage all user complaints</p>
+              <p className="text-xs text-gray-500 mt-1">Total: {complaints.length} complaints</p>
+            </div>
           </div>
 
-          {loading ? (
-            <p className="text-gray-500">Loading complaints...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : complaints.length === 0 ? (
-            <p className="text-gray-600">No complaints found.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {complaints.map((c) => (
-                <AdminReportCard 
-                  key={c._id || c.id} 
-                  report={c} 
-                  onStatusUpdate={handleStatusUpdate}
-                />
-              ))}
-            </div>
-          )}
+          <div id="complaints-grid">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="text-gray-500 ml-3">Loading complaints...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600">{error}</p>
+              </div>
+            ) : complaints.length === 0 ? (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+                <p className="text-gray-600">No complaints found.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {complaints.map((c) => (
+                  <AdminReportCard 
+                    key={c._id || c.id} 
+                    report={c} 
+                    onStatusUpdate={handleStatusUpdate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Status Update Form Modal */}
           <AdminStatusUpdateForm

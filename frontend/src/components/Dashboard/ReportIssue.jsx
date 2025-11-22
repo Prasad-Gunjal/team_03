@@ -9,13 +9,14 @@ import {
 } from "react-icons/fi";
 
 import LocationMap from "./LocationMap";
-import { decimalToDMS } from "../../utils/coordinateUtils";
+import { reverseGeocode } from "../../utils/geocoding";
 
 export default function ReportIssue() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
   const [formData, setFormData] = useState({
     category: "",
@@ -36,11 +37,21 @@ export default function ReportIssue() {
     if (error) setError('');
   };
 
-  const handleLocationChange = (coords) => {
-    const dmsLat = decimalToDMS(coords[0], true);
-    const dmsLng = decimalToDMS(coords[1], false);
-    setFormData((prev) => ({ ...prev, location: `${dmsLat} ${dmsLng}` }));
-    setShowMap(false);
+  const handleLocationChange = async (coords) => {
+    setIsLoadingLocation(true);
+    try {
+      // Get human-readable address from coordinates
+      const address = await reverseGeocode(coords[0], coords[1]);
+      setFormData((prev) => ({ ...prev, location: address }));
+      setShowMap(false);
+    } catch (error) {
+      console.error('Error getting address:', error);
+      // Fallback to coordinates if geocoding fails
+      setFormData((prev) => ({ ...prev, location: `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}` }));
+      setShowMap(false);
+    } finally {
+      setIsLoadingLocation(false);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -276,25 +287,27 @@ export default function ReportIssue() {
           {/* Location */}
           <div>
             <label className="block text-sm font-medium text-gray-700 text-left">
-              Location *
+              Location * {isLoadingLocation && <span className="text-purple-600 text-xs">(Fetching address...)</span>}
             </label>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <input
                 type="text"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Enter address or coordinates"
-                className="w-full border rounded-l p-2 mt-1 bg-gray-100 focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter address or use location picker"
+                className="flex-1 border rounded p-2 mt-1 bg-gray-100 focus:ring-2 focus:ring-purple-500"
                 required
+                disabled={isLoadingLocation}
               />
               <button
                 type="button"
-                className="border rounded-r p-2 mt-1 bg-gray-100 hover:bg-gray-200 flex items-center"
+                className="border rounded p-2 mt-1 bg-purple-100 hover:bg-purple-200 flex items-center disabled:opacity-50 text-purple-700"
                 onClick={() => setShowMap(true)}
+                disabled={isLoadingLocation}
                 title="Pick location from map"
               >
-                <FiMapPin className="text-gray-600" />
+                <FiMapPin className="text-purple-700" />
               </button>
               {showMap && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -305,9 +318,14 @@ export default function ReportIssue() {
                     >
                       &times;
                     </button>
-                    <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Location</h3>
+                    <h3 className="mb-4 text-lg font-semibold text-gray-800">📍 Select Location on Map</h3>
                     <LocationMap onLocationChange={handleLocationChange} />
-                    <p className="mt-4 text-sm text-gray-500">Click on the map to select a location. Coordinates will be filled automatically.</p>
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>How to use:</strong> Click anywhere on the map to select a location. 
+                        The address will be automatically fetched and filled in the location field.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

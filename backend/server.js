@@ -13,7 +13,15 @@ const app = express();
 
 // CORS middleware
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176"], // Add your frontend URLs
+    origin: [
+        "http://localhost:3000", 
+        "http://localhost:5173", 
+        "http://localhost:5174", 
+        "http://localhost:5175", 
+        "http://localhost:5176",
+        "https://urbanalive.netlify.app", // Production Netlify URL
+        "https://preeminent-dragon-6a2232.netlify.app" // Netlify preview URL
+    ],
     credentials: true,
 }));
 
